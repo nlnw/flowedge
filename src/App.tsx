@@ -3,11 +3,10 @@ import {
   ConnectKitProvider,
   getDefaultConfig,
 } from "connectkit";
-import { createConfig, http, WagmiConfig, WagmiProvider } from "wagmi";
-import { goerli, mainnet } from "wagmi/chains";
+import { createConfig, http, WagmiProvider } from "wagmi";
+import { mainnet } from "wagmi/chains";
 import { gemini } from "wagmi/connectors";
 
-import { APITester } from "./APITester";
 import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -39,7 +38,7 @@ const wagmiConfig = createConfig(
     walletConnectProjectId: "8e2bafed4a5154a18a506d99f7a5551d",
 
     // Required App Info
-    appName: "Your App Name",
+    appName: "flowflip",
 
     // Optional App Info
     appDescription: "Your App Description",
@@ -57,7 +56,6 @@ export function App() {
         <ConnectKitProvider>
           <div className="app">
             <div className="logo-container">
-              <img src={logo} alt="Bun Logo" className="logo bun-logo" />
               <img
                 src={reactLogo}
                 alt="React Logo"
@@ -65,10 +63,7 @@ export function App() {
               />
             </div>
 
-            <h1>Bun + React</h1>
-            <p>
-              Edit <code>src/App.tsx</code> and save to test HMR
-            </p>
+            <h1>FlipFlow</h1>
             <ConnectKitButton />
           </div>
         </ConnectKitProvider>

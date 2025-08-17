@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "Development starter kit for Katana and Tatara",
   "scripts": {
-    "build": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"'",
-    "dev": "bun --hot src/index.tsx",
-    "start": "NODE_ENV=production bun src/index.tsx",
+    "build": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser",
+    "dev": "bun --hot src/index.html",
+    "start": "NODE_ENV=production bun src/index.html",
     "start:anvil": "chmod +x scripts/start_anvil.sh && scripts/start_anvil.sh",
     "verify:anvil": "bun scripts/verify_anvil.js",
     "build:abi": "bun scripts/build_abi.js",
@@ -22,7 +22,7 @@
     "start:mcp": "bun dist-mcp/index.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@modelcontextprotocol/sdk": "^1.17.3",
     "@tanstack/react-query": "^5.85.3",
     "connectkit": "^1.9.1",
     "react": "^19.1.1",
@@ -30,15 +30,29 @@
     "solc": "^0.8.30",
     "viem": "2.x",
     "wagmi": "^2.16.3",
-    "zod": "^3.22.4"
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/bun": "^1.2.20",
-    "@types/node": "^20.11.25",
+    "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
-    "esbuild": "^0.24.0",
-    "typescript": "^5.4.2"
+    "esbuild": "^0.25.9",
+    "typescript": "^5.9.2"
   },
-  "type": "module"
+  "type": "module",
+  "browserslist": {
+    "production": [
+      "chrome >= 67",
+      "edge >= 79",
+      "firefox >= 68",
+      "opera >= 54",
+      "safari >= 14"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

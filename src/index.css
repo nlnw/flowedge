@@ -40,6 +40,11 @@ body::before {
   text-align: center;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 .logo-container {
   display: flex;
