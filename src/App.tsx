@@ -88,6 +88,10 @@ export function App() {
   const [flipCount, setFlipCount] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const shortAddress = `${contractAddress.slice(
+    0,
+    6,
+  )}...${contractAddress.slice(-4)}`;
 
   useEffect(() => {
     const fetchFlipCount = async () => {
@@ -148,36 +152,92 @@ export function App() {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider>
-          <div className="app">
-            <div className="logo-container">
-              <img
-                src={reactLogo}
-                alt="React Logo"
-                className="logo react-logo"
-              />
-            </div>
+          <div className="page">
+            <header className="header">
+              <ConnectKitButton />
+            </header>
 
-            <h1>FlipFlow</h1>
-            <ConnectKitButton />
-            <div className="flip-count">Number of Coin Flips: {flipCount}</div>
-            <button
-              type="button"
-              onClick={handleFlipCoin}
-              disabled={isFlipping}
-            >
-              {isFlipping ? "Flipping..." : "Flip Coin"}
-            </button>
-            {transactionHash && (
-              <div>
-                <a
-                  href={`https://evm-testnet.flowscan.io/tx/${transactionHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View Transaction
-                </a>
-              </div>
-            )}
+            <main className="app">
+              <section className="card glass">
+                <div className="hero">
+                  <div className="logo-container">
+                    <img
+                      src={reactLogo}
+                      alt="React Logo"
+                      className="logo react-logo"
+                    />
+                  </div>
+                  <h1 className="title gradient-text">FlipFlow</h1>
+                  <p className="subtitle">
+                    A tiny onchain coin flip on Flow Testnet
+                  </p>
+                </div>
+
+                <div className="stats">
+                  <div className="stat-card">
+                    <div className="stat-label">Total flips</div>
+                    <div className="stat-value">{flipCount}</div>
+                  </div>
+                  {transactionHash && (
+                    <a
+                      className="pill tx-link"
+                      href={`https://evm-testnet.flowscan.io/tx/${transactionHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View last tx
+                    </a>
+                  )}
+                </div>
+
+                <div className="actions">
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={handleFlipCoin}
+                    disabled={isFlipping}
+                    aria-busy={isFlipping}
+                    data-loading={isFlipping || undefined}
+                  >
+                    {isFlipping ? "Flipping..." : "Flip Coin"}
+                  </button>
+                </div>
+
+                <div className="meta">
+                  <span className="pill">Flow Testnet</span>
+                  <span className="muted">Contract</span>
+                  <a
+                    className="link"
+                    href={`https://evm-testnet.flowscan.io/address/${contractAddress}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {shortAddress}
+                  </a>
+                </div>
+              </section>
+            </main>
+
+            <footer className="footer">
+              <span className="muted">Powered by</span>
+              <a
+                className="link"
+                href="https://wagmi.sh"
+                target="_blank"
+                rel="noreferrer"
+              >
+                wagmi
+              </a>
+              <span className="dot" />
+              <a
+                className="link"
+                href="https://viem.sh"
+                target="_blank"
+                rel="noreferrer"
+              >
+                viem
+              </a>
+            </footer>
           </div>
         </ConnectKitProvider>
       </QueryClientProvider>

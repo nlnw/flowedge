@@ -1,24 +1,42 @@
 :root {
+  --bg: #0b1020;
+  --bg-2: #0f1229;
+  --card: rgba(255, 255, 255, 0.06);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.6);
+  --accent: #7c5cff;
+  --accent-2: #6ee7ff;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: dark;
+  color: var(--text);
+  background:
+    radial-gradient(
+      1200px 800px at 10% -10%,
+      rgba(124, 92, 255, 0.25),
+      transparent 50%
+    ),
+    radial-gradient(
+      1000px 600px at 90% 10%,
+      rgba(110, 231, 255, 0.2),
+      transparent 50%
+    ), linear-gradient(180deg, var(--bg), var(--bg-2));
 }
 body {
   margin: 0;
-  display: grid;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
   position: relative;
 }
+/* Subtle animated brand texture (kept) */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
-  opacity: 0.05;
+  opacity: 0.03;
   background: url("./logo.svg");
   background-size: 256px;
   transform: rotate(-12deg) scale(1.35);
@@ -33,18 +51,56 @@ body::before {
     background-position: 256px 224px;
   }
 }
-.app {
-  max-width: 1280px;
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+.header,
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  padding: 1rem 1.25rem;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+}
+.footer {
+  gap: 0.5rem;
+  justify-content: center;
+  color: var(--muted);
+}
+.dot {
+  width: 4px;
+  height: 4px;
+  background: var(--muted);
+  border-radius: 999px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.brand-logo {
+  width: 28px;
+  height: 28px;
+}
+.brand-name {
+  font-weight: 700;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
   position: relative;
   z-index: 1;
+}
+.hero {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
+  text-align: center;
 }
 .logo-container {
   display: flex;
@@ -85,6 +141,119 @@ body::before {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+}
+.title {
+  margin: 0;
+}
+.gradient-text {
+  background: linear-gradient(90deg, #fff, #bdb7ff 30%, #9ae6ff 70%, #fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle {
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.card {
+  margin: 0 auto;
+  max-width: 760px;
+  padding: 2rem;
+  border-radius: 20px;
+}
+.glass {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1.25rem 0 0.25rem;
+  flex-wrap: wrap;
+}
+.stat-card {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--card-border);
+  padding: 0.9rem 1.1rem;
+  border-radius: 14px;
+  min-width: 160px;
+  text-align: center;
+}
+.stat-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+.primary-button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #0a0a0a;
+  border: 0;
+  padding: 0.9rem 1.4rem;
+  border-radius: 14px;
+  font-weight: 800;
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease,
+    opacity 0.2s ease;
+  box-shadow: 0 6px 20px rgba(124, 92, 255, 0.35);
+  cursor: pointer;
+}
+.primary-button:hover {
+  transform: translateY(-1px);
+}
+.primary-button[disabled],
+.primary-button[data-loading="true"] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+.pill {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--card-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+.tx-link {
+  text-decoration: none;
+  color: #0a0a0a;
+  background: rgba(255, 255, 255, 0.9);
+  border: 0;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.muted {
+  color: var(--muted);
+}
+.link {
+  color: #9ae6ff;
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
 }
 code {
   background-color: #1a1a1a;
@@ -190,3 +359,5 @@ code {
     animation: none !important;
   }
 }
+
+/* --- Existing API tester styles preserved below --- */
