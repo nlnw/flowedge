@@ -46,6 +46,47 @@ const contractABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "startIndex",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "count",
+        type: "uint256",
+      },
+    ],
+    name: "getFlipResults",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bool",
+            name: "isHeads",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "player",
+            type: "address",
+          },
+        ],
+        internalType: "struct CoinFlipper.FlipResult[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
 ];
 
 const wagmiConfig = createConfig(
