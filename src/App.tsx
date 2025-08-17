@@ -11,7 +11,7 @@ import {
   custom,
   http as viemHttp,
 } from "viem";
-import { createConfig, http, WagmiProvider } from "wagmi";
+import { createConfig, http, useAccount, WagmiProvider } from "wagmi";
 import { flowTestnet } from "wagmi/chains";
 import { gemini } from "wagmi/connectors";
 
@@ -125,10 +125,14 @@ const walletClient = createWalletClient({
   transport: custom(window.ethereum),
 });
 
-export function App() {
+function AppContent() {
   const [flipCount, setFlipCount] = useState(0);
   const [isFlipping, setIsFlipping] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [showFlipTooltip, setShowFlipTooltip] = useState(false);
+  const [isLoadingFlips, setIsLoadingFlips] = useState(false);
+  const [lastFiveFlips, setLastFiveFlips] = useState<boolean[]>([]);
+  const { isConnected } = useAccount();
   const shortAddress = `${contractAddress.slice(
     0,
     6,
@@ -151,10 +155,39 @@ export function App() {
     fetchFlipCount();
   }, []);
 
+  const handleHoverFlipCount = async () => {
+    try {
+      setShowFlipTooltip(true);
+      if (flipCount === 0) {
+        setLastFiveFlips([]);
+        return;
+      }
+      setIsLoadingFlips(true);
+      const count = Math.min(5, flipCount);
+      const startIndex = flipCount - count;
+      const results = (await client.readContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: "getFlipResults",
+        args: [BigInt(startIndex), BigInt(count)],
+      })) as Array<{ isHeads: boolean; timestamp: bigint; player: string }>;
+      setLastFiveFlips(results.map((r) => Boolean(r.isHeads)));
+    } catch (err) {
+      console.error("Error fetching last flips:", err);
+      setLastFiveFlips([]);
+    } finally {
+      setIsLoadingFlips(false);
+    }
+  };
+
   const handleFlipCoin = async () => {
     try {
       setIsFlipping(true);
       setTransactionHash(null);
+
+      if (!isConnected) {
+        throw new Error("Wallet not connected");
+      }
 
       const addresses = await walletClient.getAddresses();
       const account = addresses[0] || null; // Ensure account is not undefined
@@ -170,12 +203,10 @@ export function App() {
         account,
       });
 
-      setTransactionHash(hash as string); // Explicitly cast hash to string
+      setTransactionHash(hash as string);
 
-      // Wait for the transaction to be mined
       await client.waitForTransactionReceipt({ hash });
 
-      // Update the flip count
       const count = await client.readContract({
         address: contractAddress,
         abi: contractABI,
@@ -190,95 +221,132 @@ export function App() {
   };
 
   return (
+    <>
+      <header className="header">
+        <ConnectKitButton />
+      </header>
+
+      <main className="app">
+        <section
+          className={`card glass ${!isConnected ? "disabled" : ""}`}
+          aria-disabled={!isConnected}
+        >
+          <div className="hero">
+            <div className="logo-container">
+              <img
+                src={reactLogo}
+                alt="React Logo"
+                className="logo react-logo"
+              />
+            </div>
+            <h1 className="title gradient-text">FlipFlow</h1>
+            <p className="subtitle">A tiny onchain coin flip on Flow Testnet</p>
+          </div>
+
+          <div className="stats">
+            <div
+              className="stat-card"
+              onMouseEnter={handleHoverFlipCount}
+              onMouseLeave={() => setShowFlipTooltip(false)}
+            >
+              <div className="stat-label">Total flips</div>
+              <div className="stat-value">{flipCount}</div>
+              {showFlipTooltip && (
+                <div className="tooltip flips-tooltip" role="status">
+                  {isLoadingFlips ? (
+                    <span className="muted">Loading…</span>
+                  ) : lastFiveFlips.length ? (
+                    <div className="flips-row">
+                      {lastFiveFlips.map((v, i) => (
+                        <span
+                          key={i}
+                          className={`flip-pill ${v ? "heads" : "tails"}`}
+                        >
+                          {String(v)}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="muted">No flips yet</span>
+                  )}
+                </div>
+              )}
+            </div>
+            {transactionHash && (
+              <a
+                className="pill tx-link"
+                href={`https://evm-testnet.flowscan.io/tx/${transactionHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View last tx
+              </a>
+            )}
+          </div>
+
+          <div className="actions">
+            <button
+              type="button"
+              className="primary-button"
+              onClick={handleFlipCoin}
+              disabled={isFlipping || !isConnected}
+              aria-busy={isFlipping}
+              data-loading={isFlipping || undefined}
+            >
+              {isFlipping
+                ? "Flipping..."
+                : isConnected
+                  ? "Flip Coin"
+                  : "Connect wallet to flip"}
+            </button>
+          </div>
+
+          <div className="meta">
+            <span className="pill">Flow Testnet</span>
+            <span className="muted">Contract</span>
+            <a
+              className="link"
+              href={`https://evm-testnet.flowscan.io/address/${contractAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {shortAddress}
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <span className="muted">Powered by</span>
+        <a
+          className="link"
+          href="https://wagmi.sh"
+          target="_blank"
+          rel="noreferrer"
+        >
+          wagmi
+        </a>
+        <span className="dot" />
+        <a
+          className="link"
+          href="https://viem.sh"
+          target="_blank"
+          rel="noreferrer"
+        >
+          viem
+        </a>
+      </footer>
+    </>
+  );
+}
+
+export function App() {
+  return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider>
           <div className="page">
-            <header className="header">
-              <ConnectKitButton />
-            </header>
-
-            <main className="app">
-              <section className="card glass">
-                <div className="hero">
-                  <div className="logo-container">
-                    <img
-                      src={reactLogo}
-                      alt="React Logo"
-                      className="logo react-logo"
-                    />
-                  </div>
-                  <h1 className="title gradient-text">FlipFlow</h1>
-                  <p className="subtitle">
-                    A tiny onchain coin flip on Flow Testnet
-                  </p>
-                </div>
-
-                <div className="stats">
-                  <div className="stat-card">
-                    <div className="stat-label">Total flips</div>
-                    <div className="stat-value">{flipCount}</div>
-                  </div>
-                  {transactionHash && (
-                    <a
-                      className="pill tx-link"
-                      href={`https://evm-testnet.flowscan.io/tx/${transactionHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View last tx
-                    </a>
-                  )}
-                </div>
-
-                <div className="actions">
-                  <button
-                    type="button"
-                    className="primary-button"
-                    onClick={handleFlipCoin}
-                    disabled={isFlipping}
-                    aria-busy={isFlipping}
-                    data-loading={isFlipping || undefined}
-                  >
-                    {isFlipping ? "Flipping..." : "Flip Coin"}
-                  </button>
-                </div>
-
-                <div className="meta">
-                  <span className="pill">Flow Testnet</span>
-                  <span className="muted">Contract</span>
-                  <a
-                    className="link"
-                    href={`https://evm-testnet.flowscan.io/address/${contractAddress}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {shortAddress}
-                  </a>
-                </div>
-              </section>
-            </main>
-
-            <footer className="footer">
-              <span className="muted">Powered by</span>
-              <a
-                className="link"
-                href="https://wagmi.sh"
-                target="_blank"
-                rel="noreferrer"
-              >
-                wagmi
-              </a>
-              <span className="dot" />
-              <a
-                className="link"
-                href="https://viem.sh"
-                target="_blank"
-                rel="noreferrer"
-              >
-                viem
-              </a>
-            </footer>
+            <AppContent />
           </div>
         </ConnectKitProvider>
       </QueryClientProvider>
