@@ -12,7 +12,7 @@ To use this MCP server with Cursor, add the following to your Cursor config:
   "foundry": {
     "command": "bun",
     "args": [
-      "/Users/swader/repos/forge-testing/dist-mcp/index.js"
+      "/Users/jlin/work/eth-global-nyc/dist-mcp/index.js"
     ],
     "env": {
       "PRIVATE_KEY": "0xYourPrivateKeyHere",

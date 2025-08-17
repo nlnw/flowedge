@@ -1,18 +1,21 @@
 // Example of how to use the generated address mapping
 
-import getContractAddress, { CHAIN_IDS, CONTRACT_ADDRESSES } from './addresses.js';
+import getContractAddress, {
+  CHAIN_IDS,
+  CONTRACT_ADDRESSES,
+} from "./addresses.js";
 
 // Option 1: Get address by contract name and chain ID
-const tataraWETH = getContractAddress('WETH', CHAIN_IDS.TATARA);
-console.log('WETH address on Tatara:', tataraWETH);
+const tataraWETH = getContractAddress("WETH", CHAIN_IDS.TATARA);
+console.log("WETH address on Tatara:", tataraWETH);
 
 // Option 2: Get address from the mapping directly
 const morphoAddress = CONTRACT_ADDRESSES.MorphoBlue.tatara;
-console.log('Morpho Blue address on Tatara:', morphoAddress);
+console.log("Morpho Blue address on Tatara:", morphoAddress);
 
 // Option 3: Checking if an address exists before using it
 const chainId = CHAIN_IDS.TATARA; // Could come from a wallet connection
-const contractName = 'Seaport';
+const contractName = "Seaport";
 
 const seaportAddress = getContractAddress(contractName, chainId);
 if (seaportAddress) {
@@ -23,14 +26,14 @@ if (seaportAddress) {
 
 // Option 4: Getting all available contracts on a specific chain
 function getContractsForChain(chainId) {
-  const network = chainId === CHAIN_IDS.TATARA ? 'tatara' : 'katana';
+  const network = chainId === CHAIN_IDS.TATARA ? "tatara" : "katana";
   return Object.entries(CONTRACT_ADDRESSES)
     .filter(([_, addresses]) => addresses[network] !== null)
     .map(([name, addresses]) => ({
       name,
-      address: addresses[network]
+      address: addresses[network],
     }));
 }
 
 const tataraContracts = getContractsForChain(CHAIN_IDS.TATARA);
-console.log('Available contracts on Tatara:', tataraContracts.length);
+console.log("Available contracts on Tatara:", tataraContracts.length);

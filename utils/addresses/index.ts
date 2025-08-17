@@ -1,7 +1,11 @@
 // Address management wrapper with improved API
 // This file is manually maintained - do not auto-generate
 
-import { CONTRACT_ADDRESSES, ORIGIN_CONTRACT_ADDRESSES, CHAIN_IDS } from './mapping';
+import {
+  CHAIN_IDS,
+  CONTRACT_ADDRESSES,
+  ORIGIN_CONTRACT_ADDRESSES,
+} from "./mapping";
 
 /**
  * Chain IDs for all supported networks
@@ -29,7 +33,7 @@ export { CHAIN_IDS };
 /**
  * Supported chain names
  */
-export type ChainName = 'tatara' | 'katana' | 'bokuto';
+export type ChainName = "tatara" | "katana" | "bokuto";
 
 /**
  * Map chain names to their IDs
@@ -46,11 +50,14 @@ export const CHAINS = {
  * @param chainId - The chain ID
  * @returns The contract address or null if not found
  */
-function getContractAddress(contractName: string, chainId: number): `0x${string}` | null {
+function getContractAddress(
+  contractName: string,
+  chainId: number,
+): `0x${string}` | null {
   if (!contractName || !CONTRACT_ADDRESSES[contractName]) {
     return null;
   }
-  
+
   switch (chainId) {
     case CHAIN_IDS.TATARA:
       return CONTRACT_ADDRESSES[contractName].tatara as `0x${string}` | null;
@@ -69,18 +76,27 @@ function getContractAddress(contractName: string, chainId: number): `0x${string}
  * @param chainId - The chain ID (representing the context, not the origin chain)
  * @returns The origin contract address or null if not found
  */
-function getOriginContractAddress(contractName: string, chainId: number): `0x${string}` | null {
+function getOriginContractAddress(
+  contractName: string,
+  chainId: number,
+): `0x${string}` | null {
   if (!contractName || !ORIGIN_CONTRACT_ADDRESSES[contractName]) {
     return null;
   }
-  
+
   switch (chainId) {
     case CHAIN_IDS.TATARA:
-      return ORIGIN_CONTRACT_ADDRESSES[contractName].tatara as `0x${string}` | null;
+      return ORIGIN_CONTRACT_ADDRESSES[contractName].tatara as
+        | `0x${string}`
+        | null;
     case CHAIN_IDS.KATANA:
-      return ORIGIN_CONTRACT_ADDRESSES[contractName].katana as `0x${string}` | null;
+      return ORIGIN_CONTRACT_ADDRESSES[contractName].katana as
+        | `0x${string}`
+        | null;
     case CHAIN_IDS.BOKUTO:
-      return ORIGIN_CONTRACT_ADDRESSES[contractName].bokuto as `0x${string}` | null;
+      return ORIGIN_CONTRACT_ADDRESSES[contractName].bokuto as
+        | `0x${string}`
+        | null;
     default:
       return null;
   }
@@ -101,17 +117,21 @@ class AddressManager {
    * addresses.setChain(129399);
    */
   setChain(chainIdOrName: number | ChainName): void {
-    if (typeof chainIdOrName === 'string') {
+    if (typeof chainIdOrName === "string") {
       const chainId = CHAINS[chainIdOrName];
       if (!chainId) {
-        throw new Error(`Unknown chain name: ${chainIdOrName}. Valid names are: ${Object.keys(CHAINS).join(', ')}`);
+        throw new Error(
+          `Unknown chain name: ${chainIdOrName}. Valid names are: ${Object.keys(CHAINS).join(", ")}`,
+        );
       }
       this.currentChainId = chainId;
     } else {
       // Validate that it's a known chain ID
       const validChainIds = Object.values(CHAIN_IDS);
       if (!validChainIds.includes(chainIdOrName)) {
-        throw new Error(`Unknown chain ID: ${chainIdOrName}. Valid IDs are: ${validChainIds.join(', ')}`);
+        throw new Error(
+          `Unknown chain ID: ${chainIdOrName}. Valid IDs are: ${validChainIds.join(", ")}`,
+        );
       }
       this.currentChainId = chainIdOrName;
     }
@@ -131,7 +151,7 @@ class AddressManager {
    */
   getChainName(): ChainName | null {
     if (!this.currentChainId) return null;
-    
+
     for (const [name, id] of Object.entries(CHAINS)) {
       if (id === this.currentChainId) {
         return name as ChainName;
@@ -151,31 +171,34 @@ class AddressManager {
    */
   getAddress(contractName: string): `0x${string}` {
     if (!this.currentChainId) {
-      throw new Error('Chain not set. Call setChain() first.');
+      throw new Error("Chain not set. Call setChain() first.");
     }
 
     // Try exact name first
     let address = getContractAddress(contractName, this.currentChainId);
-    
+
     // If not found and doesn't start with 'I', try with 'I' prefix
-    if (!address && !contractName.startsWith('I')) {
-      address = getContractAddress('I' + contractName, this.currentChainId);
+    if (!address && !contractName.startsWith("I")) {
+      address = getContractAddress("I" + contractName, this.currentChainId);
     }
-    
+
     // If not found and starts with 'I', try without 'I' prefix
-    if (!address && contractName.startsWith('I')) {
-      address = getContractAddress(contractName.substring(1), this.currentChainId);
+    if (!address && contractName.startsWith("I")) {
+      address = getContractAddress(
+        contractName.substring(1),
+        this.currentChainId,
+      );
     }
 
     if (!address) {
       const chainName = this.getChainName();
       const availableContracts = Object.keys(CONTRACT_ADDRESSES)
-        .filter(name => CONTRACT_ADDRESSES[name][chainName as ChainName])
+        .filter((name) => CONTRACT_ADDRESSES[name][chainName as ChainName])
         .sort();
-      
+
       throw new Error(
         `Contract "${contractName}" not found on ${chainName} (chain ID: ${this.currentChainId}). ` +
-        `Available contracts: ${availableContracts.join(', ')}`
+          `Available contracts: ${availableContracts.join(", ")}`,
       );
     }
 
@@ -188,23 +211,27 @@ class AddressManager {
    * @param chainIdOrName - Chain ID or name
    * @returns The contract address or null if not found
    */
-  getAddressForChain(contractName: string, chainIdOrName: number | ChainName): `0x${string}` | null {
-    const chainId = typeof chainIdOrName === 'string' ? CHAINS[chainIdOrName] : chainIdOrName;
-    
+  getAddressForChain(
+    contractName: string,
+    chainIdOrName: number | ChainName,
+  ): `0x${string}` | null {
+    const chainId =
+      typeof chainIdOrName === "string" ? CHAINS[chainIdOrName] : chainIdOrName;
+
     if (!chainId) {
       return null;
     }
 
     // Try exact name first
     let address = getContractAddress(contractName, chainId);
-    
+
     // If not found and doesn't start with 'I', try with 'I' prefix
-    if (!address && !contractName.startsWith('I')) {
-      address = getContractAddress('I' + contractName, chainId);
+    if (!address && !contractName.startsWith("I")) {
+      address = getContractAddress("I" + contractName, chainId);
     }
-    
+
     // If not found and starts with 'I', try without 'I' prefix
-    if (!address && contractName.startsWith('I')) {
+    if (!address && contractName.startsWith("I")) {
       address = getContractAddress(contractName.substring(1), chainId);
     }
 
@@ -231,12 +258,12 @@ class AddressManager {
    */
   getAllContracts(): string[] {
     if (!this.currentChainId) {
-      throw new Error('Chain not set. Call setChain() first.');
+      throw new Error("Chain not set. Call setChain() first.");
     }
 
     const chainName = this.getChainName();
     return Object.keys(CONTRACT_ADDRESSES)
-      .filter(name => CONTRACT_ADDRESSES[name][chainName as ChainName])
+      .filter((name) => CONTRACT_ADDRESSES[name][chainName as ChainName])
       .sort();
   }
 
@@ -253,31 +280,39 @@ class AddressManager {
    */
   getOriginAddress(contractName: string): `0x${string}` {
     if (!this.currentChainId) {
-      throw new Error('Chain not set. Call setChain() first.');
+      throw new Error("Chain not set. Call setChain() first.");
     }
 
     // Try exact name first
     let address = getOriginContractAddress(contractName, this.currentChainId);
-    
+
     // If not found and doesn't start with 'I', try with 'I' prefix
-    if (!address && !contractName.startsWith('I')) {
-      address = getOriginContractAddress('I' + contractName, this.currentChainId);
+    if (!address && !contractName.startsWith("I")) {
+      address = getOriginContractAddress(
+        "I" + contractName,
+        this.currentChainId,
+      );
     }
-    
+
     // If not found and starts with 'I', try without 'I' prefix
-    if (!address && contractName.startsWith('I')) {
-      address = getOriginContractAddress(contractName.substring(1), this.currentChainId);
+    if (!address && contractName.startsWith("I")) {
+      address = getOriginContractAddress(
+        contractName.substring(1),
+        this.currentChainId,
+      );
     }
 
     if (!address) {
       const chainName = this.getChainName();
       const availableOriginContracts = Object.keys(ORIGIN_CONTRACT_ADDRESSES)
-        .filter(name => ORIGIN_CONTRACT_ADDRESSES[name][chainName as ChainName])
+        .filter(
+          (name) => ORIGIN_CONTRACT_ADDRESSES[name][chainName as ChainName],
+        )
         .sort();
-      
+
       throw new Error(
         `Origin contract "${contractName}" not found for chain ${chainName}. ` +
-        `Available origin contracts: ${availableOriginContracts.join(', ')}`
+          `Available origin contracts: ${availableOriginContracts.join(", ")}`,
       );
     }
 
@@ -290,19 +325,23 @@ class AddressManager {
    * @param chainIdOrName - Chain ID or name
    * @returns The origin contract address or null if not found
    */
-  getOriginAddressForChain(contractName: string, chainIdOrName: number | ChainName): `0x${string}` | null {
-    const chainId = typeof chainIdOrName === 'string' ? CHAINS[chainIdOrName] : chainIdOrName;
-    
+  getOriginAddressForChain(
+    contractName: string,
+    chainIdOrName: number | ChainName,
+  ): `0x${string}` | null {
+    const chainId =
+      typeof chainIdOrName === "string" ? CHAINS[chainIdOrName] : chainIdOrName;
+
     // Try exact name first
     let address = getOriginContractAddress(contractName, chainId);
-    
+
     // If not found and doesn't start with 'I', try with 'I' prefix
-    if (!address && !contractName.startsWith('I')) {
-      address = getOriginContractAddress('I' + contractName, chainId);
+    if (!address && !contractName.startsWith("I")) {
+      address = getOriginContractAddress("I" + contractName, chainId);
     }
-    
+
     // If not found and starts with 'I', try without 'I' prefix
-    if (!address && contractName.startsWith('I')) {
+    if (!address && contractName.startsWith("I")) {
       address = getOriginContractAddress(contractName.substring(1), chainId);
     }
 
@@ -319,7 +358,10 @@ class AddressManager {
       return false;
     }
 
-    const address = this.getOriginAddressForChain(contractName, this.currentChainId);
+    const address = this.getOriginAddressForChain(
+      contractName,
+      this.currentChainId,
+    );
     return address !== null;
   }
 
@@ -329,12 +371,12 @@ class AddressManager {
    */
   getAllOriginContracts(): string[] {
     if (!this.currentChainId) {
-      throw new Error('Chain not set. Call setChain() first.');
+      throw new Error("Chain not set. Call setChain() first.");
     }
 
     const chainName = this.getChainName();
     return Object.keys(ORIGIN_CONTRACT_ADDRESSES)
-      .filter(name => ORIGIN_CONTRACT_ADDRESSES[name][chainName as ChainName])
+      .filter((name) => ORIGIN_CONTRACT_ADDRESSES[name][chainName as ChainName])
       .sort();
   }
 }
