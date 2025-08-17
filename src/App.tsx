@@ -1,29 +1,19 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   ConnectKitButton,
   ConnectKitProvider,
   getDefaultConfig,
 } from "connectkit";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { flowTestnet } from "wagmi/chains";
 import { gemini } from "wagmi/connectors";
 
-import "./index.css";
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import logo from "./logo.svg";
 import reactLogo from "./react.svg";
+import "./index.css";
 
 const wagmiConfig = createConfig(
   getDefaultConfig({
-    // Your dApps chains
-    chains: [mainnet],
-    transports: {
-      // RPC URL for each chain
-      [mainnet.id]: http(
-        `https://eth-mainnet.g.alchemy.com/v2/eJ0NeE3a-GjdFsUoQ4K6pxvz541LsWk2`,
-      ),
-    },
-
+    chains: [flowTestnet],
     connectors: [
       gemini({
         appMetadata: {
