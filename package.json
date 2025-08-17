@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Development starter kit for Katana and Tatara",
   "scripts": {
-    "build": "bun build.js",
-    "dev": "cd dist && npx http-server",
+    "build": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"'",
+    "dev": "bun --hot src/index.tsx",
     "start:anvil": "chmod +x scripts/start_anvil.sh && scripts/start_anvil.sh",
     "verify:anvil": "bun scripts/verify_anvil.js",
     "build:abi": "bun scripts/build_abi.js",
@@ -22,13 +22,17 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.10.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "solc": "^0.8.30",
     "viem": "^2.23.13",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "esbuild": "^0.24.0",
     "@types/node": "^20.11.25",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "esbuild": "^0.24.0",
     "typescript": "^5.4.2"
   },
   "type": "module"
