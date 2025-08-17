@@ -131,7 +131,9 @@ function AppContent() {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [showFlipTooltip, setShowFlipTooltip] = useState(false);
   const [isLoadingFlips, setIsLoadingFlips] = useState(false);
-  const [lastFiveFlips, setLastFiveFlips] = useState<boolean[]>([]);
+  const [lastFiveFlips, setLastFiveFlips] = useState<
+    { index: number; isHeads: boolean }[]
+  >([]);
   const { isConnected } = useAccount();
   const shortAddress = `${contractAddress.slice(
     0,
@@ -171,7 +173,12 @@ function AppContent() {
         functionName: "getFlipResults",
         args: [BigInt(startIndex), BigInt(count)],
       })) as Array<{ isHeads: boolean; timestamp: bigint; player: string }>;
-      setLastFiveFlips(results.map((r) => Boolean(r.isHeads)));
+      setLastFiveFlips(
+        results.map((r, i) => ({
+          isHeads: Boolean(r.isHeads),
+          index: startIndex + i,
+        })),
+      );
     } catch (err) {
       console.error("Error fetching last flips:", err);
       setLastFiveFlips([]);
@@ -257,12 +264,14 @@ function AppContent() {
                     <span className="muted">Loading…</span>
                   ) : lastFiveFlips.length ? (
                     <div className="flips-row">
-                      {lastFiveFlips.map((v, i) => (
+                      {lastFiveFlips.map((f) => (
                         <span
-                          key={i}
-                          className={`flip-pill ${v ? "heads" : "tails"}`}
+                          key={f.index}
+                          className={`flip-pill ${
+                            f.isHeads ? "heads" : "tails"
+                          }`}
                         >
-                          {String(v)}
+                          {`${f.index}: ${f.isHeads ? "Heads" : "Tails"}`}
                         </span>
                       ))}
                     </div>
@@ -272,16 +281,6 @@ function AppContent() {
                 </div>
               )}
             </div>
-            {transactionHash && (
-              <a
-                className="pill tx-link"
-                href={`https://evm-testnet.flowscan.io/tx/${transactionHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View last tx
-              </a>
-            )}
           </div>
 
           <div className="actions">
@@ -299,6 +298,16 @@ function AppContent() {
                   ? "Flip Coin"
                   : "Connect wallet to flip"}
             </button>
+            {transactionHash && (
+              <a
+                className="pill tx-link"
+                href={`https://evm-testnet.flowscan.io/tx/${transactionHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View last tx
+              </a>
+            )}
           </div>
 
           <div className="meta">
